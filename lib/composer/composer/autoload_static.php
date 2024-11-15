@@ -17,6 +17,10 @@ class ComposerStaticInit749170dad3f5e7f9ca158f5a9f04f6a2
             'OC\\' => 3,
             'OCP\\' => 4,
         ),
+        'N' => 
+        array (
+            'NCU\\' => 4,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -31,6 +35,10 @@ class ComposerStaticInit749170dad3f5e7f9ca158f5a9f04f6a2
         'OCP\\' => 
         array (
             0 => __DIR__ . '/../../..' . '/lib/public',
+        ),
+        'NCU\\' => 
+        array (
+            0 => __DIR__ . '/../../..' . '/lib/unstable',
         ),
     );
 
@@ -196,6 +204,8 @@ class ComposerStaticInit749170dad3f5e7f9ca158f5a9f04f6a2
         'OCP\\Calendar\\BackendTemporarilyUnavailableException' => __DIR__ . '/../../..' . '/lib/public/Calendar/BackendTemporarilyUnavailableException.php',
         'OCP\\Calendar\\Exceptions\\CalendarException' => __DIR__ . '/../../..' . '/lib/public/Calendar/Exceptions/CalendarException.php',
         'OCP\\Calendar\\ICalendar' => __DIR__ . '/../../..' . '/lib/public/Calendar/ICalendar.php',
+        'OCP\\Calendar\\ICalendarIsShared' => __DIR__ . '/../../..' . '/lib/public/Calendar/ICalendarIsShared.php',
+        'OCP\\Calendar\\ICalendarIsWritable' => __DIR__ . '/../../..' . '/lib/public/Calendar/ICalendarIsWritable.php',
         'OCP\\Calendar\\ICalendarProvider' => __DIR__ . '/../../..' . '/lib/public/Calendar/ICalendarProvider.php',
         'OCP\\Calendar\\ICalendarQuery' => __DIR__ . '/../../..' . '/lib/public/Calendar/ICalendarQuery.php',
         'OCP\\Calendar\\ICreateFromString' => __DIR__ . '/../../..' . '/lib/public/Calendar/ICreateFromString.php',
@@ -731,6 +741,7 @@ class ComposerStaticInit749170dad3f5e7f9ca158f5a9f04f6a2
         'OCP\\Settings\\Events\\DeclarativeSettingsSetValueEvent' => __DIR__ . '/../../..' . '/lib/public/Settings/Events/DeclarativeSettingsSetValueEvent.php',
         'OCP\\Settings\\IDeclarativeManager' => __DIR__ . '/../../..' . '/lib/public/Settings/IDeclarativeManager.php',
         'OCP\\Settings\\IDeclarativeSettingsForm' => __DIR__ . '/../../..' . '/lib/public/Settings/IDeclarativeSettingsForm.php',
+        'OCP\\Settings\\IDeclarativeSettingsFormWithHandlers' => __DIR__ . '/../../..' . '/lib/public/Settings/IDeclarativeSettingsFormWithHandlers.php',
         'OCP\\Settings\\IDelegatedSettings' => __DIR__ . '/../../..' . '/lib/public/Settings/IDelegatedSettings.php',
         'OCP\\Settings\\IIconSection' => __DIR__ . '/../../..' . '/lib/public/Settings/IIconSection.php',
         'OCP\\Settings\\IManager' => __DIR__ . '/../../..' . '/lib/public/Settings/IManager.php',
@@ -1310,7 +1321,6 @@ class ComposerStaticInit749170dad3f5e7f9ca158f5a9f04f6a2
         'OC\\Core\\Controller\\OCSController' => __DIR__ . '/../../..' . '/core/Controller/OCSController.php',
         'OC\\Core\\Controller\\PreviewController' => __DIR__ . '/../../..' . '/core/Controller/PreviewController.php',
         'OC\\Core\\Controller\\ProfileApiController' => __DIR__ . '/../../..' . '/core/Controller/ProfileApiController.php',
-        'OC\\Core\\Controller\\ProfilePageController' => __DIR__ . '/../../..' . '/core/Controller/ProfilePageController.php',
         'OC\\Core\\Controller\\RecommendedAppsController' => __DIR__ . '/../../..' . '/core/Controller/RecommendedAppsController.php',
         'OC\\Core\\Controller\\ReferenceApiController' => __DIR__ . '/../../..' . '/core/Controller/ReferenceApiController.php',
         'OC\\Core\\Controller\\ReferenceController' => __DIR__ . '/../../..' . '/core/Controller/ReferenceController.php',
@@ -1417,6 +1427,7 @@ class ComposerStaticInit749170dad3f5e7f9ca158f5a9f04f6a2
         'OC\\Core\\Migrations\\Version30000Date20240814180800' => __DIR__ . '/../../..' . '/core/Migrations/Version30000Date20240814180800.php',
         'OC\\Core\\Migrations\\Version30000Date20240815080800' => __DIR__ . '/../../..' . '/core/Migrations/Version30000Date20240815080800.php',
         'OC\\Core\\Migrations\\Version30000Date20240906095113' => __DIR__ . '/../../..' . '/core/Migrations/Version30000Date20240906095113.php',
+        'OC\\Core\\Migrations\\Version31000Date20241018063111' => __DIR__ . '/../../..' . '/core/Migrations/Version31000Date20241018063111.php',
         'OC\\Core\\Notification\\CoreNotifier' => __DIR__ . '/../../..' . '/core/Notification/CoreNotifier.php',
         'OC\\Core\\ResponseDefinitions' => __DIR__ . '/../../..' . '/core/ResponseDefinitions.php',
         'OC\\Core\\Service\\LoginFlowV2Service' => __DIR__ . '/../../..' . '/core/Service/LoginFlowV2Service.php',

@@ -11,6 +11,7 @@ use Doctrine\DBAL\Driver\Exception;
 use OC\Files\Filesystem;
 use OCA\FederatedFileSharing\Events\FederatedShareAddedEvent;
 use OCA\Files_Sharing\Helper;
+use OCA\Files_Sharing\ResponseDefinitions;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Federation\ICloudFederationFactory;
@@ -30,77 +31,36 @@ use OCP\Share;
 use OCP\Share\IShare;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @psalm-import-type Files_SharingRemoteShare from ResponseDefinitions
+ */
 class Manager {
 	public const STORAGE = '\OCA\Files_Sharing\External\Storage';
 
 	/** @var string|null */
 	private $uid;
 
-	/** @var IDBConnection */
-	private $connection;
-
 	/** @var \OC\Files\Mount\Manager */
 	private $mountManager;
 
-	/** @var IStorageFactory */
-	private $storageLoader;
-
-	/** @var IClientService */
-	private $clientService;
-
-	/** @var IManager */
-	private $notificationManager;
-
-	/** @var IDiscoveryService */
-	private $discoveryService;
-
-	/** @var ICloudFederationProviderManager */
-	private $cloudFederationProviderManager;
-
-	/** @var ICloudFederationFactory */
-	private $cloudFederationFactory;
-
-	/** @var IGroupManager */
-	private $groupManager;
-
-	/** @var IUserManager */
-	private $userManager;
-
-	/** @var IEventDispatcher */
-	private $eventDispatcher;
-
-	/** @var LoggerInterface */
-	private $logger;
-
 	public function __construct(
-		IDBConnection                   $connection,
-		\OC\Files\Mount\Manager         $mountManager,
-		IStorageFactory                 $storageLoader,
-		IClientService                  $clientService,
-		IManager                        $notificationManager,
-		IDiscoveryService               $discoveryService,
-		ICloudFederationProviderManager $cloudFederationProviderManager,
-		ICloudFederationFactory         $cloudFederationFactory,
-		IGroupManager                   $groupManager,
-		IUserManager                    $userManager,
-		IUserSession                    $userSession,
-		IEventDispatcher                $eventDispatcher,
-		LoggerInterface                 $logger,
+		private IDBConnection $connection,
+		\OC\Files\Mount\Manager $mountManager,
+		private IStorageFactory $storageLoader,
+		private IClientService $clientService,
+		private IManager $notificationManager,
+		private IDiscoveryService $discoveryService,
+		private ICloudFederationProviderManager $cloudFederationProviderManager,
+		private ICloudFederationFactory $cloudFederationFactory,
+		private IGroupManager $groupManager,
+		private IUserManager $userManager,
+		IUserSession $userSession,
+		private IEventDispatcher $eventDispatcher,
+		private LoggerInterface $logger,
 	) {
 		$user = $userSession->getUser();
-		$this->connection = $connection;
 		$this->mountManager = $mountManager;
-		$this->storageLoader = $storageLoader;
-		$this->clientService = $clientService;
 		$this->uid = $user ? $user->getUID() : null;
-		$this->notificationManager = $notificationManager;
-		$this->discoveryService = $discoveryService;
-		$this->cloudFederationProviderManager = $cloudFederationProviderManager;
-		$this->cloudFederationFactory = $cloudFederationFactory;
-		$this->groupManager = $groupManager;
-		$this->userManager = $userManager;
-		$this->eventDispatcher = $eventDispatcher;
-		$this->logger = $logger;
 	}
 
 	/**
@@ -730,7 +690,7 @@ class Manager {
 	/**
 	 * return a list of shares which are not yet accepted by the user
 	 *
-	 * @return array list of open server-to-server shares
+	 * @return list<Files_SharingRemoteShare> list of open server-to-server shares
 	 */
 	public function getOpenShares() {
 		return $this->getShares(false);
@@ -739,7 +699,7 @@ class Manager {
 	/**
 	 * return a list of shares which are accepted by the user
 	 *
-	 * @return array list of accepted server-to-server shares
+	 * @return list<Files_SharingRemoteShare> list of accepted server-to-server shares
 	 */
 	public function getAcceptedShares() {
 		return $this->getShares(true);
@@ -751,7 +711,7 @@ class Manager {
 	 * @param bool|null $accepted True for accepted only,
 	 *                            false for not accepted,
 	 *                            null for all shares of the user
-	 * @return array list of open server-to-server shares
+	 * @return list<Files_SharingRemoteShare> list of open server-to-server shares
 	 */
 	private function getShares($accepted) {
 		$user = $this->userManager->get($this->uid);

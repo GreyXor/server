@@ -27,9 +27,6 @@ use OCP\UserStatus\IUserStatus;
  */
 class StatusesController extends OCSController {
 
-	/** @var StatusService */
-	private $service;
-
 	/**
 	 * StatusesController constructor.
 	 *
@@ -37,11 +34,12 @@ class StatusesController extends OCSController {
 	 * @param IRequest $request
 	 * @param StatusService $service
 	 */
-	public function __construct(string $appName,
+	public function __construct(
+		string $appName,
 		IRequest $request,
-		StatusService $service) {
+		private StatusService $service,
+	) {
 		parent::__construct($appName, $request);
-		$this->service = $service;
 	}
 
 	/**
@@ -49,7 +47,7 @@ class StatusesController extends OCSController {
 	 *
 	 * @param int|null $limit Maximum number of statuses to find
 	 * @param int|null $offset Offset for finding statuses
-	 * @return DataResponse<Http::STATUS_OK, UserStatusPublic[], array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<UserStatusPublic>, array{}>
 	 *
 	 * 200: Statuses returned
 	 */
@@ -58,9 +56,9 @@ class StatusesController extends OCSController {
 	public function findAll(?int $limit = null, ?int $offset = null): DataResponse {
 		$allStatuses = $this->service->findAll($limit, $offset);
 
-		return new DataResponse(array_map(function ($userStatus) {
+		return new DataResponse(array_values(array_map(function ($userStatus) {
 			return $this->formatStatus($userStatus);
-		}, $allStatuses));
+		}, $allStatuses)));
 	}
 
 	/**

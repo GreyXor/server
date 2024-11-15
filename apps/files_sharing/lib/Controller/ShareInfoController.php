@@ -26,9 +26,6 @@ use OCP\Share\IManager;
  */
 class ShareInfoController extends ApiController {
 
-	/** @var IManager */
-	private $shareManager;
-
 	/**
 	 * ShareInfoController constructor.
 	 *
@@ -36,12 +33,12 @@ class ShareInfoController extends ApiController {
 	 * @param IRequest $request
 	 * @param IManager $shareManager
 	 */
-	public function __construct(string $appName,
+	public function __construct(
+		string $appName,
 		IRequest $request,
-		IManager $shareManager) {
+		private IManager $shareManager,
+	) {
 		parent::__construct($appName, $request);
-
-		$this->shareManager = $shareManager;
 	}
 
 	/**
@@ -51,7 +48,7 @@ class ShareInfoController extends ApiController {
 	 * @param string|null $password Password of the share
 	 * @param string|null $dir Subdirectory to get info about
 	 * @param int $depth Maximum depth to get info about
-	 * @return JSONResponse<Http::STATUS_OK, Files_SharingShareInfo, array{}>|JSONResponse<Http::STATUS_FORBIDDEN|Http::STATUS_NOT_FOUND, array<empty>, array{}>
+	 * @return JSONResponse<Http::STATUS_OK, Files_SharingShareInfo, array{}>|JSONResponse<Http::STATUS_FORBIDDEN|Http::STATUS_NOT_FOUND, list<empty>, array{}>
 	 *
 	 * 200: Share info returned
 	 * 403: Getting share info is not allowed

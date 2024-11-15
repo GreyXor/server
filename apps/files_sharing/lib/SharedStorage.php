@@ -17,6 +17,7 @@ use OC\Files\Storage\Storage;
 use OC\Files\Storage\Wrapper\Jail;
 use OC\Files\Storage\Wrapper\PermissionsMask;
 use OC\Files\Storage\Wrapper\Wrapper;
+use OC\Files\View;
 use OC\Share\Share;
 use OC\User\NoUserException;
 use OCA\Files_External\Config\ConfigAdapter;
@@ -44,14 +45,14 @@ use Psr\Log\LoggerInterface;
  * Convert target path to source path and pass the function call to the correct storage provider
  */
 class SharedStorage extends Jail implements LegacyISharedStorage, ISharedStorage, IDisableEncryptionStorage {
-	/** @var \OCP\Share\IShare */
+	/** @var IShare */
 	private $superShare;
 
-	/** @var \OCP\Share\IShare[] */
+	/** @var IShare[] */
 	private $groupedShares;
 
 	/**
-	 * @var \OC\Files\View
+	 * @var View
 	 */
 	private $ownerView;
 
@@ -88,16 +89,16 @@ class SharedStorage extends Jail implements LegacyISharedStorage, ISharedStorage
 	 */
 	protected $storage;
 
-	public function __construct($arguments) {
-		$this->ownerView = $arguments['ownerView'];
+	public function __construct(array $parameters) {
+		$this->ownerView = $parameters['ownerView'];
 		$this->logger = \OC::$server->get(LoggerInterface::class);
 
-		$this->superShare = $arguments['superShare'];
-		$this->groupedShares = $arguments['groupedShares'];
+		$this->superShare = $parameters['superShare'];
+		$this->groupedShares = $parameters['groupedShares'];
 
-		$this->user = $arguments['user'];
-		if (isset($arguments['sharingDisabledForUser'])) {
-			$this->sharingDisabledForUser = $arguments['sharingDisabledForUser'];
+		$this->user = $parameters['user'];
+		if (isset($parameters['sharingDisabledForUser'])) {
+			$this->sharingDisabledForUser = $parameters['sharingDisabledForUser'];
 		} else {
 			$this->sharingDisabledForUser = false;
 		}

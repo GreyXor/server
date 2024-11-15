@@ -18,6 +18,7 @@ use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\AppFramework\OCS\OCSNotFoundException;
 use OCP\Constants;
+use OCP\Files\Folder;
 use OCP\IConfig;
 use OCP\IDateTimeZone;
 use OCP\IL10N;
@@ -42,7 +43,7 @@ class ApiTest extends TestCase {
 
 	private static $tempStorage;
 
-	/** @var \OCP\Files\Folder */
+	/** @var Folder */
 	private $userFolder;
 
 	/** @var string */
@@ -1298,7 +1299,7 @@ class ApiTest extends TestCase {
 			$this->assertTrue($valid);
 		} catch (OCSNotFoundException $e) {
 			$this->assertFalse($valid);
-			$this->assertEquals('Invalid date, date format must be YYYY-MM-DD', $e->getMessage());
+			$this->assertEquals('Invalid date. Format must be YYYY-MM-DD', $e->getMessage());
 			$ocs->cleanup();
 			return;
 		}

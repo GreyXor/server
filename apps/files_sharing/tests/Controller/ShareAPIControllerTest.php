@@ -60,7 +60,7 @@ class ShareAPIControllerTest extends TestCase {
 	private IRootFolder|\PHPUnit\Framework\MockObject\MockObject $rootFolder;
 	private IURLGenerator|\PHPUnit\Framework\MockObject\MockObject $urlGenerator;
 	private string|\PHPUnit\Framework\MockObject\MockObject $currentUser;
-	private ShareAPIController  $ocs;
+	private ShareAPIController $ocs;
 	private IL10N|\PHPUnit\Framework\MockObject\MockObject $l;
 	private IConfig|\PHPUnit\Framework\MockObject\MockObject $config;
 	private IAppManager|\PHPUnit\Framework\MockObject\MockObject $appManager;
@@ -1570,7 +1570,7 @@ class ShareAPIControllerTest extends TestCase {
 	 * @dataProvider dataCanAccessRoomShare
 	 *
 	 * @param bool $expects
-	 * @param \OCP\Share\IShare $share
+	 * @param IShare $share
 	 * @param bool helperAvailable
 	 * @param bool canAccessShareByHelper
 	 */
@@ -2217,7 +2217,7 @@ class ShareAPIControllerTest extends TestCase {
 
 	public function testCreateShareInvalidExpireDate(): void {
 		$this->expectException(OCSNotFoundException::class);
-		$this->expectExceptionMessage('Invalid date, date format must be YYYY-MM-DD');
+		$this->expectExceptionMessage('Invalid date. Format must be YYYY-MM-DD');
 
 		$ocs = $this->mockFormatShare();
 
@@ -4701,7 +4701,7 @@ class ShareAPIControllerTest extends TestCase {
 	 * @dataProvider dataFormatShare
 	 *
 	 * @param array $expects
-	 * @param \OCP\Share\IShare $share
+	 * @param IShare $share
 	 * @param array $users
 	 * @param $exception
 	 */
@@ -4920,7 +4920,7 @@ class ShareAPIControllerTest extends TestCase {
 	 * @dataProvider dataFormatRoomShare
 	 *
 	 * @param array $expects
-	 * @param \OCP\Share\IShare $share
+	 * @param IShare $share
 	 * @param bool $helperAvailable
 	 * @param array $formatShareByHelper
 	 */

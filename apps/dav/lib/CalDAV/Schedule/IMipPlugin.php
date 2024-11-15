@@ -12,7 +12,7 @@ use OCA\DAV\CalDAV\CalendarObject;
 use OCA\DAV\CalDAV\EventComparisonService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Defaults;
-use OCP\IConfig;
+use OCP\IAppConfig;
 use OCP\IUserSession;
 use OCP\Mail\IMailer;
 use OCP\Mail\Provider\Address;
@@ -45,41 +45,26 @@ use Sabre\VObject\Reader;
  * @license http://sabre.io/license/ Modified BSD License
  */
 class IMipPlugin extends SabreIMipPlugin {
-	private IUserSession $userSession;
-	private IConfig $config;
-	private IMailer $mailer;
-	private LoggerInterface $logger;
-	private ITimeFactory $timeFactory;
-	private Defaults $defaults;
+	
 	private ?VCalendar $vCalendar = null;
-	private IMipService $imipService;
 	public const MAX_DATE = '2038-01-01';
 	public const METHOD_REQUEST = 'request';
 	public const METHOD_REPLY = 'reply';
 	public const METHOD_CANCEL = 'cancel';
-	public const IMIP_INDENT = 15; // Enough for the length of all body bullet items, in all languages
-	private EventComparisonService $eventComparisonService;
-	private IMailManager $mailManager;
+	public const IMIP_INDENT = 15;
 
-	public function __construct(IConfig $config,
-		IMailer $mailer,
-		LoggerInterface $logger,
-		ITimeFactory $timeFactory,
-		Defaults $defaults,
-		IUserSession $userSession,
-		IMipService $imipService,
-		EventComparisonService $eventComparisonService,
-		IMailManager $mailManager) {
+	public function __construct(
+		private IAppConfig $config,
+		private IMailer $mailer,
+		private LoggerInterface $logger,
+		private ITimeFactory $timeFactory,
+		private Defaults $defaults,
+		private IUserSession $userSession,
+		private IMipService $imipService,
+		private EventComparisonService $eventComparisonService,
+		private IMailManager $mailManager,
+	) {
 		parent::__construct('');
-		$this->userSession = $userSession;
-		$this->config = $config;
-		$this->mailer = $mailer;
-		$this->logger = $logger;
-		$this->timeFactory = $timeFactory;
-		$this->defaults = $defaults;
-		$this->imipService = $imipService;
-		$this->eventComparisonService = $eventComparisonService;
-		$this->mailManager = $mailManager;
 	}
 
 	public function initialize(DAV\Server $server): void {
@@ -111,8 +96,16 @@ class IMipPlugin extends SabreIMipPlugin {
 	 * @return void
 	 */
 	public function schedule(Message $iTipMessage) {
-		// Not sending any emails if the system considers the update
-		// insignificant.
+
+		// do not send imip messages if external system already did
+		/** @psalm-suppress UndefinedPropertyFetch */
+		if ($iTipMessage->message?->VEVENT?->{'X-NC-DISABLE-SCHEDULING'}?->getValue() === 'true') {
+			if (!$iTipMessage->scheduleStatus) {
+				$iTipMessage->scheduleStatus = '1.0;We got the message, but iMip messages are disabled for this event';
+			}
+			return;
+		}
+		// Not sending any emails if the system considers the update insignificant
 		if (!$iTipMessage->significantChange) {
 			if (!$iTipMessage->scheduleStatus) {
 				$iTipMessage->scheduleStatus = '1.0;We got the message, but it\'s not significant enough to warrant an email';
@@ -248,7 +241,7 @@ class IMipPlugin extends SabreIMipPlugin {
 			*/
 
 			$recipientDomain = substr(strrchr($recipient, '@'), 1);
-			$invitationLinkRecipients = explode(',', preg_replace('/\s+/', '', strtolower($this->config->getAppValue('dav', 'invitation_link_recipients', 'yes'))));
+			$invitationLinkRecipients = explode(',', preg_replace('/\s+/', '', strtolower($this->config->getValueString('dav', 'invitation_link_recipients', 'yes'))));
 
 			if (strcmp('yes', $invitationLinkRecipients[0]) === 0
 				|| in_array(strtolower($recipient), $invitationLinkRecipients)
@@ -267,12 +260,13 @@ class IMipPlugin extends SabreIMipPlugin {
 		$mailService = null;
 
 		try {
-			// retrieve user object
-			$user = $this->userSession->getUser();
-			// evaluate if user object exist
-			if ($user !== null) {
-				// retrieve appropriate service with the same address as sender
-				$mailService = $this->mailManager->findServiceByAddress($user->getUID(), $sender);
+			if ($this->config->getValueBool('core', 'mail_providers_enabled', true)) {
+				// retrieve user object
+				$user = $this->userSession->getUser();
+				if ($user !== null) {
+					// retrieve appropriate service with the same address as sender
+					$mailService = $this->mailManager->findServiceByAddress($user->getUID(), $sender);
+				}
 			}
 			// evaluate if a mail service was found and has sending capabilities
 			if ($mailService !== null && $mailService instanceof IMessageSend) {

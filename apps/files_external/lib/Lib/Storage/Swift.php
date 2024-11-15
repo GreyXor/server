@@ -17,7 +17,10 @@ use OC\Files\ObjectStore\SwiftFactory;
 use OC\Files\Storage\Common;
 use OCP\Cache\CappedMemoryCache;
 use OCP\Files\IMimeTypeDetector;
+use OCP\Files\StorageAuthException;
 use OCP\Files\StorageBadConfigException;
+use OCP\Files\StorageNotAvailableException;
+use OCP\ICache;
 use OpenStack\Common\Error\BadResponseError;
 use OpenStack\ObjectStore\v1\Models\Container;
 use OpenStack\ObjectStore\v1\Models\StorageObject;
@@ -55,7 +58,7 @@ class Swift extends Common {
 	 * \OpenCloud\OpenStack\ObjectStorage\Resource\DataObject for existing
 	 * paths and path to false for not existing paths.
 	 *
-	 * @var \OCP\ICache
+	 * @var ICache
 	 */
 	private $objectCache;
 
@@ -81,8 +84,8 @@ class Swift extends Common {
 	 *
 	 * @return StorageObject|false object
 	 *                             or false if the object did not exist
-	 * @throws \OCP\Files\StorageAuthException
-	 * @throws \OCP\Files\StorageNotAvailableException
+	 * @throws StorageAuthException
+	 * @throws StorageNotAvailableException
 	 */
 	private function fetchObject(string $path): StorageObject|false {
 		$cached = $this->objectCache->get($path);
@@ -112,51 +115,51 @@ class Swift extends Common {
 	 * Returns whether the given path exists.
 	 *
 	 * @return bool true if the object exist, false otherwise
-	 * @throws \OCP\Files\StorageAuthException
-	 * @throws \OCP\Files\StorageNotAvailableException
+	 * @throws StorageAuthException
+	 * @throws StorageNotAvailableException
 	 */
 	private function doesObjectExist(string $path): bool {
 		return $this->fetchObject($path) !== false;
 	}
 
-	public function __construct($params) {
-		if ((empty($params['key']) and empty($params['password']))
-			or (empty($params['user']) && empty($params['userid'])) or empty($params['bucket'])
-			or empty($params['region'])
+	public function __construct(array $parameters) {
+		if ((empty($parameters['key']) and empty($parameters['password']))
+			or (empty($parameters['user']) && empty($parameters['userid'])) or empty($parameters['bucket'])
+			or empty($parameters['region'])
 		) {
 			throw new StorageBadConfigException('API Key or password, Login, Bucket and Region have to be configured.');
 		}
 
-		$user = $params['user'];
-		$this->id = 'swift::' . $user . md5($params['bucket']);
+		$user = $parameters['user'];
+		$this->id = 'swift::' . $user . md5($parameters['bucket']);
 
-		$bucketUrl = new Uri($params['bucket']);
+		$bucketUrl = new Uri($parameters['bucket']);
 		if ($bucketUrl->getHost()) {
-			$params['bucket'] = basename($bucketUrl->getPath());
-			$params['endpoint_url'] = (string)$bucketUrl->withPath(dirname($bucketUrl->getPath()));
+			$parameters['bucket'] = basename($bucketUrl->getPath());
+			$parameters['endpoint_url'] = (string)$bucketUrl->withPath(dirname($bucketUrl->getPath()));
 		}
 
-		if (empty($params['url'])) {
-			$params['url'] = 'https://identity.api.rackspacecloud.com/v2.0/';
+		if (empty($parameters['url'])) {
+			$parameters['url'] = 'https://identity.api.rackspacecloud.com/v2.0/';
 		}
 
-		if (empty($params['service_name'])) {
-			$params['service_name'] = 'cloudFiles';
+		if (empty($parameters['service_name'])) {
+			$parameters['service_name'] = 'cloudFiles';
 		}
 
-		$params['autocreate'] = true;
+		$parameters['autocreate'] = true;
 
-		if (isset($params['domain'])) {
-			$params['user'] = [
-				'name' => $params['user'],
-				'password' => $params['password'],
+		if (isset($parameters['domain'])) {
+			$parameters['user'] = [
+				'name' => $parameters['user'],
+				'password' => $parameters['password'],
 				'domain' => [
-					'name' => $params['domain'],
+					'name' => $parameters['domain'],
 				]
 			];
 		}
 
-		$this->params = $params;
+		$this->params = $parameters;
 		// FIXME: private class...
 		$this->objectCache = new CappedMemoryCache();
 		$this->connectionFactory = new SwiftFactory(
@@ -165,7 +168,7 @@ class Swift extends Common {
 			\OC::$server->get(LoggerInterface::class)
 		);
 		$this->objectStore = new \OC\Files\ObjectStore\Swift($this->params, $this->connectionFactory);
-		$this->bucket = $params['bucket'];
+		$this->bucket = $parameters['bucket'];
 		$this->mimeDetector = \OC::$server->get(IMimeTypeDetector::class);
 	}
 
@@ -534,8 +537,8 @@ class Swift extends Common {
 	 * Returns the initialized object store container.
 	 *
 	 * @return Container
-	 * @throws \OCP\Files\StorageAuthException
-	 * @throws \OCP\Files\StorageNotAvailableException
+	 * @throws StorageAuthException
+	 * @throws StorageNotAvailableException
 	 */
 	public function getContainer(): Container {
 		if (is_null($this->container)) {

@@ -342,7 +342,7 @@ $CONFIG = [
 
 /**
  * The timeout in seconds for synchronizing address books, e.g. federated system address books (as run by `occ federation:sync-addressbooks`).
- * 
+ *
  * Defaults to ``30`` seconds
  */
 'carddav_sync_request_timeout' => 30,
@@ -368,8 +368,10 @@ $CONFIG = [
 
 /**
  * Enable or disable the automatic logout after session_lifetime, even if session
- * keepalive is enabled. This will make sure that an inactive browser will be logged out
- * even if requests to the server might extend the session lifetime.
+ * keepalive is enabled. This will make sure that an inactive browser will log itself out
+ * even if requests to the server might extend the session lifetime. Note: the logout is   
+ * handled on the client side. This is not a way to limit the duration of potentially
+ * compromised sessions.
  *
  * Defaults to ``false``
  */
@@ -404,6 +406,17 @@ $CONFIG = [
  * Defaults to ``true``
  */
 'auth.bruteforce.protection.enabled' => true,
+
+/**
+ * Whether the brute force protection should write into the database even when a memory cache is available
+ *
+ * Using the database is most likely worse for performance, but makes investigating
+ * issues a lot easier as it's possible to look directly at the table to see all
+ * logged remote addresses and actions.
+ *
+ * Defaults to ``false``
+ */
+'auth.bruteforce.protection.force.database' => false,
 
 /**
  * Whether the brute force protection shipped with Nextcloud should be set to testing mode.
@@ -661,6 +674,8 @@ $CONFIG = [
  * are generated within Nextcloud using any kind of command line tools (cron or
  * occ). The value should contain the full base URL:
  * ``https://www.example.com/nextcloud``
+ * Please make sure to set the value to the URL that your users mainly use to access this Nextcloud. 
+ * Otherwise there might be problems with the URL generation via cron.
  *
  * Defaults to ``''`` (empty string)
  */
@@ -2556,4 +2571,22 @@ $CONFIG = [
 	'/bin',
 	'/opt/bin',
 ],
+
+/**
+ * The maximum chunk size to use for chunked uploads.
+ * A bigger chunk size results in higher throughput, but above 100 MiB there are only diminishing returns,
+ * while services like Cloudflare already limit to 100 MiB.
+ *
+ * Defaults to 100 MiB.
+ */
+'files.chunked_upload.max_size' => 100 * 1024 * 1024,
+
+/**
+ * The maximum number of chunks uploaded in parallel during chunked uploads.
+ * A bigger count results in higher throughput, but will also consume more server workers,
+ * while the improvements diminish.
+ *
+ * Defaults to 5.
+ */
+'files.chunked_upload.max_parallel_count' => 5,
 ];
